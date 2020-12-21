@@ -1,0 +1,11 @@
+﻿@model Movie 
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page to detail your site's privacy policy.</p>
+<p>@Model.Title</p>
+<p>@Model.Genres</p>
+<p>Links: @Model.Links.FirstOrDefault().ImdbId, @Model.Links.FirstOrDefault().TmdbId</p>
+
