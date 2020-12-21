@@ -3,6 +3,31 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to MovieLens</h1>
+    <section>
+        @using (Html.BeginForm("AllMovies", "Home", FormMethod.Get)) { 
+            <button type="submit" class="btn btn-primary" onclick="location.href='@Url.Action("AllMovies", "Home")'">Load all movies</button>
+            <br>
+            <details>
+                <summary>Order by:</summary>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline1" checked name="option" class="custom-control-input" value="id">
+                    <label class="custom-control-label" for="customRadioInline1">ID</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline2" name="option" class="custom-control-input" value="title">
+                    <label class="custom-control-label" for="customRadioInline2">TITLE</label>
+                </div>
+                <input type="hidden" name="page" value=1>
+            </details>
+        }
+    </section>
 </div>
+
+
+<style>
+    section {
+        padding: 10px;
+        border: 1px solid black;
+    }
+</style>

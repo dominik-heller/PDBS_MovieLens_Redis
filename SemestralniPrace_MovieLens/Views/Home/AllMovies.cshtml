@@ -1,0 +1,62 @@
+﻿@model IEnumerable<SemestralniPrace_MovieLens.Models.Movie>
+
+@{
+    ViewData["Title"] = "AllMovies";
+}
+
+<h1>AllMovies</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Genres)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Genres)
+                </td>
+                <td>
+                    <!--pošle to do action EnterThread(int id)-->
+                    @Html.ActionLink("Enter", "EnterThread", new { id = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<div>
+    @if (Convert.ToInt32(ViewContext.HttpContext.Request.Query["page"]) == 1)
+    {@Html.ActionLink("Next page", "AllMovies", "Home", new { option = @ViewContext.HttpContext.Request.Query["option"], page = Convert.ToInt32(@ViewContext.HttpContext.Request.Query["page"]) + 1 })}
+    else {@Html.ActionLink("Previous page", "AllMovies", "Home", new { option = @ViewContext.HttpContext.Request.Query["option"], page = Convert.ToInt32(@ViewContext.HttpContext.Request.Query["page"]) - 1 })
+    @Html.ActionLink("Next page", "AllMovies", "Home", new { option = @ViewContext.HttpContext.Request.Query["option"], page = Convert.ToInt32(@ViewContext.HttpContext.Request.Query["page"]) + 1 })}
+</div>
+
+<style>
+    div {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>

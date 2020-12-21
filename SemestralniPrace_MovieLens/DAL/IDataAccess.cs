@@ -9,5 +9,6 @@ namespace SemestralniPrace_MovieLens.DAL
     public interface IDataAccess
     {
         public Movie GetMovie(string id);
+        IList<Movie> GetAllMovies(string option, int page);
     }
 }

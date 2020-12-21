@@ -22,10 +22,18 @@ namespace SemestralniPrace_MovieLens.Controllers
 
         }
 
+        public IActionResult AllMovies(string option, int page)
+        {
+            //gets a page of size 10 of movies
+            IList<Movie> movies = _store.GetAllMovies(option, page);
+            return View(movies);
+        }
+
         public IActionResult Index()
         {
-            Movie m = _store.GetMovie("Movies/2");
-            return View("Privacy",m);
+            // Movie m = _store.GetMovie("Movies/2");
+            // return View("Privacy",m);
+            return View();
         }
 
         public IActionResult Privacy()
