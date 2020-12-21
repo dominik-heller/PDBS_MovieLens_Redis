@@ -29,6 +29,12 @@ namespace SemestralniPrace_MovieLens.Controllers
             return View(movies);
         }
 
+        public IActionResult MoviesByTitleSearch(string selection)
+        {
+            IList<Movie> movies = _store.GetMovieByTitleSearch(selection);
+            return View("AllMovies", movies);
+        }
+
         public IActionResult Index()
         {
             // Movie m = _store.GetMovie("Movies/2");

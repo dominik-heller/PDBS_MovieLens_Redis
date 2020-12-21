@@ -2,7 +2,7 @@
 {
     public class Link
     {
-        public int ImdbId { get; set; }
-        public int TmdbId { get; set; }
+        public int? ImdbId { get; set; }
+        public int? TmdbId { get; set; }
     }
 }

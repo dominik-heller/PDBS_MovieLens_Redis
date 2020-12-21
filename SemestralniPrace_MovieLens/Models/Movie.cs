@@ -10,6 +10,11 @@ namespace SemestralniPrace_MovieLens.Models
         public string Id { get; set; }
         public string Title { get; set; }
         public string Genres { get; set; }
-        public IList<Link> Links { get; set; }
+        private IList<Link> links;
+        public IList<Link> Links
+        {
+            get { if (links == null) { return links = new List<Link>(); } return links; }
+            set { links = value; }
+        }
     }
 }

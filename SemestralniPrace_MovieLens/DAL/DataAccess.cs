@@ -1,4 +1,5 @@
 ﻿using Raven.Client.Documents;
+using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Session;
 using SemestralniPrace_MovieLens.DAL.Indexes;
 using SemestralniPrace_MovieLens.Models;
@@ -17,6 +18,7 @@ namespace SemestralniPrace_MovieLens.DAL
             _store = store;
             _store.Initialize();
             new Movie_ByTitle().Execute(_store);
+            new Movie_TitleSearch().Execute(_store);
         }
 
         public IList<Movie> GetAllMovies(string option, int page)
@@ -34,6 +36,16 @@ namespace SemestralniPrace_MovieLens.DAL
             {
                 Movie t = session.Load<Movie>(id);
                 return t;
+            }
+        }
+
+        public IList<Movie> GetMovieByTitleSearch(string selection)
+        {
+            using (IDocumentSession session = _store.OpenSession())
+            {
+                IList<Movie> movies = session.Advanced.DocumentQuery<Movie, Movie_TitleSearch>().Search("Query", $"{selection}", @operator: SearchOperator.And).Statistics(out QueryStatistics stats).ToList();
+                int totalResults = stats.TotalResults;
+                return movies;
             }
         }
     }

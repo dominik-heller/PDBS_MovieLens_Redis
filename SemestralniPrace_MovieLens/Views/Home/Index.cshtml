@@ -5,21 +5,32 @@
 <div class="text-center">
     <h1 class="display-4">Welcome to MovieLens</h1>
     <section>
-        @using (Html.BeginForm("AllMovies", "Home", FormMethod.Get)) { 
-            <button type="submit" class="btn btn-primary" onclick="location.href='@Url.Action("AllMovies", "Home")'">Load all movies</button>
+        @using (Html.BeginForm("AllMovies", "Home", FormMethod.Get))
+        {
+            <button type="submit" class="btn btn-primary">Load all movies</button>
             <br>
             <details>
-                <summary>Order by:</summary>
+                <summary>Options:</summary>
                 <div class="custom-control custom-radio custom-control-inline">
                     <input type="radio" id="customRadioInline1" checked name="option" class="custom-control-input" value="id">
-                    <label class="custom-control-label" for="customRadioInline1">ID</label>
+                    <label class="custom-control-label" for="customRadioInline1">Order by ID</label>
                 </div>
                 <div class="custom-control custom-radio custom-control-inline">
                     <input type="radio" id="customRadioInline2" name="option" class="custom-control-input" value="title">
-                    <label class="custom-control-label" for="customRadioInline2">TITLE</label>
+                    <label class="custom-control-label" for="customRadioInline2">Order by TITLE</label>
                 </div>
                 <input type="hidden" name="page" value=1>
             </details>
+        }
+    </section>
+    <section>
+        @using (Html.BeginForm("MoviesByTitleSearch", "Home", FormMethod.Get))
+        {
+            <label for="text_input">Search by title:</label>
+            <br>
+            <input type="text" id="text_input" style="width:auto" name="selection" required>
+            <br>
+            <button type="submit" id="my_button" class="btn btn-primary">Search</button>
         }
     </section>
 </div>
@@ -29,5 +40,8 @@
     section {
         padding: 10px;
         border: 1px solid black;
+    }
+    #my_button{
+        margin-top:5px;
     }
 </style>
