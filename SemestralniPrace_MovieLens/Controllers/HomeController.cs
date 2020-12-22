@@ -37,15 +37,24 @@ namespace SemestralniPrace_MovieLens.Controllers
 
         public IActionResult Index()
         {
-            // Movie m = _store.GetMovie("Movies/2");
-            // return View("Privacy",m);
             return View();
         }
 
         public IActionResult Privacy()
         {
-            Movie m = _store.GetMovie("Movies/1");
+            return View();
+        }
+
+        public IActionResult MovieDetail(string movie_id)
+        {
+            Movie m = _store.GetMovie(movie_id);
             return View(m);
+        }
+
+        public IActionResult TopByGenre(string genre)
+        {
+            IList<Movie> movies_by_genre = _store.GetByGenre(genre);
+            return View("AllMovies", movies_by_genre);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -25,27 +25,33 @@ else {
             <th>
                 @Html.DisplayNameFor(model => model.Genres)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AverageRating)
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Genres)
-                </td>
-                <td>
-                    <!--pošle to do action EnterThread(int id)-->
-                    @Html.ActionLink("Enter", "EnterThread", new { id = item.Id })
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Genres)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AverageRating)
+            </td>
+            <td>
+                <!--pošle to do action EnterThread(int id)-->
+                @Html.ActionLink("Enter", "MovieDetail", new { movie_id = item.Id })
+            </td>
+        </tr>
         }
     </tbody>
 </table>

@@ -1,0 +1,14 @@
+﻿@model Movie
+@{
+    ViewData["Title"] = "Movie Detail";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>@Model.Id</p>
+<p>@Model.Title</p>
+<p>@Model.Genres</p>
+
+@{string imbd_number = @Model.Links.FirstOrDefault().ImdbId.ToString().PadLeft(8, '0'); string imbd = $"https://www.imdb.com/title/tt{imbd_number}"; string tmdbid = $"https://www.themoviedb.org/movie/{@Model.Links.FirstOrDefault().TmdbId}";}
+<p>Links: <a href=@imbd target="_blank">IMBD</a>, <a href=@tmdbid target="_blank">TMDB</a></p>
+
+<p>Average rating: @Model.AverageRating</p>

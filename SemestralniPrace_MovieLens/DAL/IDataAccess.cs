@@ -11,5 +11,6 @@ namespace SemestralniPrace_MovieLens.DAL
         public Movie GetMovie(string id);
         IList<Movie> GetAllMovies(string option, int page);
         IList<Movie> GetMovieByTitleSearch(string selection);
+        IList<Movie> GetByGenre(string genre);
     }
 }

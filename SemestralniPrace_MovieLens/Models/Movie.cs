@@ -16,5 +16,6 @@ namespace SemestralniPrace_MovieLens.Models
             get { if (links == null) { return links = new List<Link>(); } return links; }
             set { links = value; }
         }
+        public double AverageRating { get; set; }
     }
 }

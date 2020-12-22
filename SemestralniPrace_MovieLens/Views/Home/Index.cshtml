@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    List<string> genres = new List<string>() {"action", "adventure", "animation", "children", "comedy", "crime", "documentary", "drama", "fantasy", "film", "horror", "imax", "musical", "mystery", "noir", "romance", "thriller", "war", "western"};
 }
 
 <div class="text-center">
@@ -13,11 +14,15 @@
                 <summary>Options:</summary>
                 <div class="custom-control custom-radio custom-control-inline">
                     <input type="radio" id="customRadioInline1" checked name="option" class="custom-control-input" value="id">
-                    <label class="custom-control-label" for="customRadioInline1">Order by ID</label>
+                    <label class="custom-control-label" for="customRadioInline1">Order by NONE</label>
                 </div>
                 <div class="custom-control custom-radio custom-control-inline">
                     <input type="radio" id="customRadioInline2" name="option" class="custom-control-input" value="title">
                     <label class="custom-control-label" for="customRadioInline2">Order by TITLE</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="customRadioInline3" name="option" class="custom-control-input" value="rating">
+                    <label class="custom-control-label" for="customRadioInline3">Order by RATING</label>
                 </div>
                 <input type="hidden" name="page" value=1>
             </details>
@@ -33,6 +38,21 @@
             <button type="submit" id="my_button" class="btn btn-primary">Search</button>
         }
     </section>
+    <section>
+        @using (Html.BeginForm("TopByGenre", "Home", FormMethod.Get))
+        {
+            <label for="btngrupa">Top 100 by genre:</label>
+            <div id="div_select">
+                <select name="genre" class="form-control form-control-sm">
+                    @foreach (string item in genres)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" id="my_button" class="btn btn-primary">Go</button>
+        }
+    </section>
 </div>
 
 
@@ -43,5 +63,10 @@
     }
     #my_button{
         margin-top:5px;
+    }
+    #div_select {
+        width: 100px;
+        display: block;
+        margin: 0 auto;
     }
 </style>
