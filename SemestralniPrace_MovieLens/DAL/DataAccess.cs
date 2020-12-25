@@ -21,6 +21,7 @@ namespace SemestralniPrace_MovieLens.DAL
             new Movie_TitleSearch().Execute(_store);
             new Rating_AverageForMovie().Execute(_store);
             new Movie_GenreAndRatingSearch().Execute(_store);
+            new Tags_ByMovieId().Execute(_store);
         }
 
         public IList<Movie> GetAllMovies(string option, int page)
@@ -33,7 +34,7 @@ namespace SemestralniPrace_MovieLens.DAL
             }
         }
 
-        public IList<Movie> GetByGenre(string genre)
+        public IList<Movie> GetMovieByGenre(string genre)
         {
 
             using (IDocumentSession session = _store.OpenSession())
@@ -62,6 +63,8 @@ namespace SemestralniPrace_MovieLens.DAL
                 // double rating = results.FirstOrDefault().Rating_Average;
                 // new MovieAndRating() { Movie = t, AverageRating = rating };
                 */
+
+
                 Movie t = session.Load<Movie>(id);
                 return t;
             }
@@ -77,5 +80,48 @@ namespace SemestralniPrace_MovieLens.DAL
                 return movies;
             }
         }
+
+        public IList<Tags> GetTagsByMovieId(string movieid, int page)
+        {
+            using (IDocumentSession session = _store.OpenSession())
+            {
+                IList <Tags>  l = session.Query<Tags, Tags_ByMovieId>().Where(x=>x.MovieId==movieid).Skip((page) * 10).Take(10).ToList();
+                return l;
+            }
+        }
+
+        #region Event_subscription
+        //Tato část pouze ukazuje vyvolání "triggeru" v situaci, kdy dojde k přidání nového/odebrání stávajícího ratingu k filmu (to v semestrální práci samostatně neřešeno, ale případně by to asi byla vhodná funkcionalita)
+        //Map-reduce index vypočítavající AvarageRating se přidání/odebrání ratingu k filmu ihned aktualizuje a novou hodnotu poté uložíme k příslušnému filmu
+        // => tím by výsledné hodnocení filmu zůstalo vždy aktuální
+        //Níže ukázáno na uložení nového ratingu.
+        private void StoreRating()
+        {
+            _store.OnAfterSaveChanges += this.OnAfterSaveChanges;
+            using (IDocumentSession session = _store.OpenSession())
+            {
+                Ratings r = new Ratings() { Id = "test_rating", MovieId = "Movies/100001", Rating = 5.0, Timestamp = DateTime.Now.ToString(), UserId = "myUser" };
+                session.Store(r);
+                session.SaveChanges();
+            }
+        }
+
+        private void OnAfterSaveChanges(object sender, AfterSaveChangesEventArgs args)
+        {
+            if(args.Entity is Ratings)
+            {
+                var rating = args.Entity as Ratings;
+                using (IDocumentSession session = _store.OpenSession())
+                {
+                    double average = session.Query<Rating_AverageForMovie.Result, Rating_AverageForMovie>().Where(x => x.MovieId.Equals(rating.MovieId)).FirstOrDefault().Rating_Average;
+                    session.Advanced.Patch<Movie, double>(rating.MovieId, x => x.AverageRating, average);
+                    session.SaveChanges();
+                }
+            }
+
+            
+        }
+
+        #endregion
     }
 }

@@ -4,15 +4,13 @@
     ViewData["Title"] = "Movies";
 }
 
-<h1>AllMovies</h1>
+<h1>Movie list</h1>
+<br />
 @if (Model == null || Model.Count()==0)
 {
     <p>NOTHING FOUND!</p>
 }
 else { 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -71,5 +69,8 @@ else {
         padding: 10px;
         display: flex;
         justify-content: space-between;
+    }
+    h1{
+        text-decoration:underline;
     }
 </style>

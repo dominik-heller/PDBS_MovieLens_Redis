@@ -5,6 +5,7 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome to MovieLens</h1>
+    <br />
     <section>
         @using (Html.BeginForm("AllMovies", "Home", FormMethod.Get))
         {
@@ -59,7 +60,7 @@
 <style>
     section {
         padding: 10px;
-        border: 1px solid black;
+        border-bottom: 1px solid black;
     }
     #my_button{
         margin-top:5px;
@@ -68,5 +69,8 @@
         width: 100px;
         display: block;
         margin: 0 auto;
+    }
+    h1{
+       text-decoration: underline;
     }
 </style>

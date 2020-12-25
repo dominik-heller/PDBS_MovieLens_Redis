@@ -45,6 +45,12 @@ namespace SemestralniPrace_MovieLens.Controllers
             return View();
         }
 
+        public IActionResult GetTags(string movieid, int page)
+        {
+            IList<Tags> taglist = _store.GetTagsByMovieId(movieid, page);
+            return PartialView(taglist);
+        }
+
         public IActionResult MovieDetail(string movie_id)
         {
             Movie m = _store.GetMovie(movie_id);
@@ -53,7 +59,7 @@ namespace SemestralniPrace_MovieLens.Controllers
 
         public IActionResult TopByGenre(string genre)
         {
-            IList<Movie> movies_by_genre = _store.GetByGenre(genre);
+            IList<Movie> movies_by_genre = _store.GetMovieByGenre(genre);
             return View("AllMovies", movies_by_genre);
         }
 

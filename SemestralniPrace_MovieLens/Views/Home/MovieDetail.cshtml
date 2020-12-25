@@ -3,12 +3,115 @@
     ViewData["Title"] = "Movie Detail";
 }
 <h1>@ViewData["Title"]</h1>
+<br />
 
-<p>@Model.Id</p>
-<p>@Model.Title</p>
-<p>@Model.Genres</p>
+<div id="mygrid">
 
-@{string imbd_number = @Model.Links.FirstOrDefault().ImdbId.ToString().PadLeft(8, '0'); string imbd = $"https://www.imdb.com/title/tt{imbd_number}"; string tmdbid = $"https://www.themoviedb.org/movie/{@Model.Links.FirstOrDefault().TmdbId}";}
-<p>Links: <a href=@imbd target="_blank">IMBD</a>, <a href=@tmdbid target="_blank">TMDB</a></p>
+    <div id="title">@Model.Title</div>
+    <div id="genres">@Model.Genres</div>
 
-<p>Average rating: @Model.AverageRating</p>
+    @{string imbd_number = @Model.Links.FirstOrDefault().ImdbId.ToString().PadLeft(8, '0'); string imbd = $"https://www.imdb.com/title/tt{imbd_number}"; string tmdbid = $"https://www.themoviedb.org/movie/{@Model.Links.FirstOrDefault().TmdbId}";}
+    <div id="links">Links: <a href=@imbd target="_blank">IMBD</a>, <a href=@tmdbid target="_blank">TMDB</a></div>
+
+    <div id="rating">
+        Average rating:<br /><span>
+            @if (Model.AverageRating == 0 || Model.AverageRating == 5)
+            {@Model.AverageRating}
+        else
+        {@String.Format("{0:0.0}", Model.AverageRating);
+    }/5
+        </span>
+    </div>
+    <div id="tags">
+        <span id="tags_section">
+        </span>
+        <div>
+            <button type="button" id="load_button" class="btn btn-primary">Load tags</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    a = 0;
+    $(document).ready(function () {
+        a = 0;
+        $('#load_button').click(function () {
+            $.ajax({
+                url: "GetTags", data: { movieid: "@Model.Id", page: a }, success: function (result) {
+                    $("#tags_section").append(result); //konverze na js object
+                    if ($('.count').length < 10 && a == 0) { $('#load_button').hide(); }
+                    if ($('.count').length < a * 10 && a != 0) { $('#load_button').hide(); }
+                    if ($('.count').length == 10) { $('#load_button').text("Load more"); }
+                    }
+            }); a = a + 1;
+            });
+    });
+
+
+</script>
+ 
+
+<style>
+    h1 {
+        text-decoration: underline;
+    }
+
+    #mygrid {
+        display: grid;
+        grid-template-areas: "title title title title rating rating""genres genres genres genres rating rating""links links links links rating rating""tags tags tags tags tags tags";
+        grid-gap: 4px;
+        background-color: black;
+        padding: 4px;
+    }
+
+        #mygrid > div {
+            background-color: rgba(255, 255, 255, 0.95);
+            text-align: center;
+            padding: 30px 0;
+            font-size: 1.8em;
+        }
+
+    #rating span {
+        display: inline-block;
+        font-size: 4em;
+        text-decoration: none;
+    }
+
+    #title {
+        grid-area: title;
+        font-weight: bold;
+    }
+
+    #links {
+        grid-area: links;
+    }
+
+    #rating {
+        grid-area: rating;
+        text-decoration: underline;
+    }
+
+    #genres {
+        grid-area: genres;
+    }
+
+    #tags {
+        grid-area: tags;
+    }
+
+        #tags span {
+            font-size: 1rem;
+            display: inline;
+            text-align: justify;
+            margin: 0;
+            padding: 0;
+        }
+
+
+    @@media screen and (max-width: 1000px) {
+        #mygrid {
+            display: grid;
+            grid-template-areas: "title""genres""links""rating""tags";
+        }
+    }
+</style>
