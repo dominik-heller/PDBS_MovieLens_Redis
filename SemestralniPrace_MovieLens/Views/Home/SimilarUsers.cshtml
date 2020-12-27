@@ -1,0 +1,68 @@
+﻿@model IEnumerable<SemestralniPrace_MovieLens.ViewModels.SimilarUser>
+
+@{
+    ViewData["Title"] = "SimilarUsers";
+    var selectedUser = @Model.Where(x => x.UserId == TempData["SelectedUserId"].ToString()).FirstOrDefault();
+    int count = 0;
+}
+
+<h1>SimilarUsers</h1>
+@if (Model.Count() == 1)
+{
+    <p>NO ELIGIBLE USERS FOUND!</p>
+    <p>Either selected User does not have more than 10 ratings or no other user rated at least half of user-rated movies. </p>
+}
+else
+{
+    <br />
+    <div id="selection">
+        <p><b>Selected user: </b>@selectedUser.UserId</p>
+        <p><b>Count of ratings: </b>@selectedUser.CountOfRatings</p>
+        <p><b>Average Rating: </b>@selectedUser.AverageRating</p>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CountOfRatings)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AverageRating)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                if (item.UserId != selectedUser.UserId)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CountOfRatings)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.AverageRating)
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<style>
+    #selection {
+        padding: 10px;
+        border: dotted 1px black;
+    }
+</style>

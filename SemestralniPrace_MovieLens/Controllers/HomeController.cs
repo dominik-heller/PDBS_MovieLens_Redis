@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SemestralniPrace_MovieLens.DAL;
 using SemestralniPrace_MovieLens.Models;
+using SemestralniPrace_MovieLens.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,7 +43,17 @@ namespace SemestralniPrace_MovieLens.Controllers
 
         public IActionResult Privacy()
         {
+          // string id = "";
+          //  _store.GetSimilarUsers(id);
             return View();
+        }
+
+        public IActionResult SimilarUsers(string UserId)
+        {
+            string id = UserId;
+            TempData["SelectedUserId"] = id;
+            List<SimilarUser> l =_store.GetSimilarUsers(id);
+            return View(l);
         }
 
         public IActionResult GetTags(string movieid, int page)
