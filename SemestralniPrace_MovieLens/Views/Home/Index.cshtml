@@ -61,15 +61,16 @@
             <br />
             <input type="text" id="textfield" name="UserId" required placeholder="Fill UserID (e.g. Users/1)" />
             <br />
-            <button type="button"  id="my_button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                Go
+            <button type="button" id="my_button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal">
+                Warning
             </button>
+            <button type="submit" id="my_button" class="btn btn-primary">Ok</button>
             <!-- Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Warning</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -78,8 +79,7 @@
                             This operation might take some time to finalize. Usually between 1-10 seconds depending on the number of ratings necessary to process (1 million ratings equals to +-5s). Thank you for you understanding. :)
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Ok</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Ok</button>
                         </div>
                     </div>
                 </div>

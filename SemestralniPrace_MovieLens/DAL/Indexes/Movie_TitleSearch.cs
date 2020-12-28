@@ -11,7 +11,7 @@ namespace SemestralniPrace_MovieLens.DAL.Indexes
     {
         public class Result
         {
-            public object Query { get; set; }
+            public string Title { get; set; }
         }
 
         public Movie_TitleSearch()
@@ -19,14 +19,10 @@ namespace SemestralniPrace_MovieLens.DAL.Indexes
             Map = movies => from movie in movies
                              select new Result
                              {
-                                 Query = new object[]
-                                    {
-                                    movie.Title
-                                    //možno přidat více parametrů podle čeho vyhledávat
-                                    }
+                                    Title=movie.Title
                              };
 
-            Index("Query", FieldIndexing.Search);
+            Index(x=>x.Title, FieldIndexing.Search);
         }
     }
 }

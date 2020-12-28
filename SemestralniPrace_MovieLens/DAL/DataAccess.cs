@@ -19,13 +19,26 @@ namespace SemestralniPrace_MovieLens.DAL
         public DataAccess(IDocumentStore store)
         {
             _store = store;
-            _store.Initialize();
-            new Movie_ByTitle().Execute(_store);
-            new Movie_TitleSearch().Execute(_store);
-            new Rating_AverageForMovie().Execute(_store);
-            new Movie_GenreAndRatingSearch().Execute(_store);
-            new Tags_ByMovieId().Execute(_store);
-            new Ratings_ByMovieIdAndUserId().Execute(_store);
+            this.InitializeDb(_store);
+        }
+
+        public void InitializeDb(IDocumentStore store)
+        {
+            try
+            {
+                _store.Initialize();
+                new Movie_ByTitle().Execute(_store);
+                new Movie_TitleSearch().Execute(_store);
+                new Rating_AverageForMovie().Execute(_store);
+                new Movie_GenreAndRatingSearch().Execute(_store);
+                new Tags_ByMovieId().Execute(_store);
+                new Ratings_ByMovieIdAndUserId().Execute(_store);
+            }
+            catch (Raven.Client.Exceptions.RavenException e)
+            {
+                throw new Raven.Client.Exceptions.RavenException("Unable to connect to DB => check the connection setting in: 'SemestralniPrace\\SemestralniPrace_MovieLens\\appsettings.json'", e);
+            }
+
         }
 
         public List<SimilarUser> GetSimilarUsers(string id)
@@ -33,16 +46,19 @@ namespace SemestralniPrace_MovieLens.DAL
             List<Ratings> user_ratings = new List<Ratings>();
             if (user_ratings != null || user_ratings.Count() > 10)
             {
+                //ziskani vsech hodnoceni zvoleneho uzivatele
                 using (IDocumentSession session = _store.OpenSession())
                 {
                     user_ratings = session.Query<Ratings, Ratings_ByMovieIdAndUserId>().Where(x => x.UserId == id).ToList();
                 }
+                //selekce movieId z hodnoceni zvoleneho uzivatele
                 List<string> user_ratedmovies = user_ratings.Select(x => x.MovieId).ToList();
                 double sumofuserratings = user_ratings.Sum(x => x.Rating);
                 int countofuserratings = user_ratedmovies.Count();
                 double finalaverage = sumofuserratings / countofuserratings;
+                //ziskani vsech hodnoceni u vsech filmu ktere zvoleny uzivatel hodnotil (asynchronně)
                 List<Ratings> ratings_foruseratedmovies = DoWork(user_ratedmovies); //sync:  session.Query<Ratings, Ratings_ByMovieIdAndUserId>().Where(x => x.MovieId.In(user_ratedmovies)).ToList();
-                                                                                    //prumerne hodnoceni spolecnych filmu kazdeho uzivatele
+                //prumerne hodnoceni kazdeho uzivatele napric vsemi ziskanymi filmy
                 var results = from p in ratings_foruseratedmovies
                               group p by p.UserId into g
                               let sumor = g.Sum(x => x.Rating)
@@ -54,32 +70,28 @@ namespace SemestralniPrace_MovieLens.DAL
                                   CountOfRatings = countor,
                                   AverageRating = sumor / countor
                               };
-                //pouze ti co hodnotili alespon polovinu filmu co zvoleny user
+                //selekce pouze tech uzivatelu co hodnotili alespon polovinu filmu co zvoleny uzivatel
                 var results1 = from p in results
                                where p.CountOfRatings > countofuserratings / 2
                                select p;
-                //top 10 (11=>1 is selected user)
+                //vyber top 10 nejpodobněji hodnotích uživatelů (11=>1 is selected user)
                 var l = results1.OrderBy(item => Math.Abs(finalaverage - item.AverageRating)).Take(10).ToList();
                 l.Add(new SimilarUser { UserId = id, CountOfRatings = countofuserratings, AverageRating = finalaverage }); //vybraný user
-                List<SimilarUser> l1 = l.ToList();
-                return l1;
+                return l.ToList();
             }
             else
             {
                 List<SimilarUser> l = new List<SimilarUser>();
-                l.Add( new SimilarUser { UserId = null, AverageRating = 0, CountOfRatings = 0 });
+                l.Add(new SimilarUser { UserId = null, AverageRating = 0, CountOfRatings = 0 });
                 return l;
             }
         }
 
-
-
         private List<Ratings> DoWork(List<string> user_ratedmovies)
         {
-            //IAsyncDocumentSession asyncSession = _store.OpenAsyncSession()
-            using (IDocumentSession session = _store.OpenSession())
+            async Task<List<Ratings>> GetDocument(int skip, int take)
             {
-                async Task<List<Ratings>> GetDocument(int skip, int take)
+                using (IAsyncDocumentSession asyncSession = _store.OpenAsyncSession())
                 {
                     {
                         using (var session = _store.OpenAsyncSession())
@@ -88,22 +100,24 @@ namespace SemestralniPrace_MovieLens.DAL
                         };
                     }
                 }
-                int no_of_tasks = 30;
-                int rounds = user_ratedmovies.Count() / no_of_tasks;
-                List<Task<List<Ratings>>> tasks = new List<Task<List<Ratings>>>();
-                for (int i = 0; i < no_of_tasks; i++)
-                {
-                    tasks.Add(GetDocument(i * rounds, rounds));
-                }
-                Task.WaitAll(tasks.ToArray());
-                List<Ratings> final = new List<Ratings>();
-                foreach (var i in tasks)
-                {
-                    List<Ratings> l = i.Result;
-                    final.AddRange(l);
-                }
-                return final;
             }
+            int no_of_tasks = 30;
+            int rounds = (user_ratedmovies.Count() / no_of_tasks)+1;
+            List<Task<List<Ratings>>> tasks = new List<Task<List<Ratings>>>();
+            for (int i = 0; i < no_of_tasks; i++)
+            {
+                tasks.Add(GetDocument(rounds*i, rounds));
+                if(rounds*i> user_ratedmovies.Count()) 
+                { break; }
+            }
+            Task.WaitAll(tasks.ToArray());
+            List<Ratings> final = new List<Ratings>();
+            foreach (var i in tasks)
+            {
+                List<Ratings> l = i.Result;
+                final.AddRange(l);
+            }
+            return final;
         }
 
         public IList<Movie> GetAllMovies(string option, int page)
@@ -140,7 +154,7 @@ namespace SemestralniPrace_MovieLens.DAL
         {
             using (IDocumentSession session = _store.OpenSession())
             {
-                IList<Movie> movies = session.Advanced.DocumentQuery<Movie, Movie_TitleSearch>().Search("Query", $"{selection}", @operator: SearchOperator.And).Statistics(out QueryStatistics stats).ToList();
+                IList<Movie> movies = session.Advanced.DocumentQuery<Movie, Movie_TitleSearch>().Search(x => x.Title, selection, @operator: SearchOperator.And).Statistics(out QueryStatistics stats).ToList();
                 int totalResults = stats.TotalResults;
                 return movies;
             }
