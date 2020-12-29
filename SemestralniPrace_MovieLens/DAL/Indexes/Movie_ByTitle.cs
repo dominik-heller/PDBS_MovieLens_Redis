@@ -21,15 +21,6 @@ namespace SemestralniPrace_MovieLens.DAL.Indexes
                              {
                                  Title = movie.Title
                              };
-            /* Přes Reduce -> třeba vrátit 
-                        Reduce = results => from result in results
-                                            group result by result.ThreadId into g
-                                            select new
-                                            {
-                                                Product = g.Key,
-                                                Count = g.Sum(x => x.Count),
-                                                Total = g.Sum(x => x.Total)
-                                            };*/
         }
     }
 }

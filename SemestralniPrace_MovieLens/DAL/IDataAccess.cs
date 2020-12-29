@@ -1,4 +1,5 @@
-﻿using SemestralniPrace_MovieLens.Models;
+﻿using Raven.Client.Documents;
+using SemestralniPrace_MovieLens.Models;
 using SemestralniPrace_MovieLens.ViewModels;
 using System;
 using System.Collections.Generic;

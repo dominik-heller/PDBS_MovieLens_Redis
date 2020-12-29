@@ -13,19 +13,21 @@ namespace SemestralniPrace_MovieLens.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IDataAccess _store;
 
-        public HomeController(ILogger<HomeController> logger, IDataAccess store)
+        public HomeController(IDataAccess store)
         {
-            _logger = logger;
             _store = store;
-
         }
 
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        //gets a page of size 10
         public IActionResult AllMovies(string option, int page)
         {
-            //gets a page of size 10 of movies
             IList<Movie> movies = _store.GetAllMovies(option, page);
             return View(movies);
         }
@@ -34,18 +36,6 @@ namespace SemestralniPrace_MovieLens.Controllers
         {
             IList<Movie> movies = _store.GetMovieByTitleSearch(selection);
             return View("AllMovies", movies);
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-          // string id = "";
-          //  _store.GetSimilarUsers(id);
-            return View();
         }
 
         public IActionResult SimilarUsers(string UserId)

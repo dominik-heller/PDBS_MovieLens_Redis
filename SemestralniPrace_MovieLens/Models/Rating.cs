@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SemestralniPrace_MovieLens.Models
 {
-    //musí se to jmenovat ratings => protože property Rating má stejné jméno (a jiný název třídy než Rating/Ratings se nenamapuje na ravendb kolekci Rating)
+    //třída se musí to jmenovat Ratings (nikoli pouze Rating) => protože property Rating má stejné jméno (a jiný název třídy než Rating/Ratings se nenamapuje na ravendb kolekci Rating)
     public class Ratings
     {
         public string Id { get; set; }

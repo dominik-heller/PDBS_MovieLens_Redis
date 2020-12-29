@@ -22,7 +22,7 @@ namespace SemestralniPrace_MovieLens.DAL
             this.InitializeDb(_store);
         }
 
-        public void InitializeDb(IDocumentStore store)
+        private void InitializeDb(IDocumentStore store)
         {
             try
             {
@@ -38,7 +38,6 @@ namespace SemestralniPrace_MovieLens.DAL
             {
                 throw new Raven.Client.Exceptions.RavenException("Unable to connect to DB => check the connection setting in: 'SemestralniPrace\\SemestralniPrace_MovieLens\\appsettings.json'", e);
             }
-
         }
 
         public List<SimilarUser> GetSimilarUsers(string id)
@@ -51,7 +50,7 @@ namespace SemestralniPrace_MovieLens.DAL
                 {
                     user_ratings = session.Query<Ratings, Ratings_ByMovieIdAndUserId>().Where(x => x.UserId == id).ToList();
                 }
-                //selekce movieId z hodnoceni zvoleneho uzivatele
+                //selekce vsech movieId z hodnoceni zvoleneho uzivatele
                 List<string> user_ratedmovies = user_ratings.Select(x => x.MovieId).ToList();
                 double sumofuserratings = user_ratings.Sum(x => x.Rating);
                 int countofuserratings = user_ratedmovies.Count();
@@ -70,7 +69,7 @@ namespace SemestralniPrace_MovieLens.DAL
                                   CountOfRatings = countor,
                                   AverageRating = sumor / countor
                               };
-                //selekce pouze tech uzivatelu co hodnotili alespon polovinu filmu co zvoleny uzivatel
+                //selekce pouze tech uzivatelu, kteri hodnotili alespon polovinu filmu co zvoleny uzivatel
                 var results1 = from p in results
                                where p.CountOfRatings > countofuserratings / 2
                                select p;
@@ -102,12 +101,12 @@ namespace SemestralniPrace_MovieLens.DAL
                 }
             }
             int no_of_tasks = 30;
-            int rounds = (user_ratedmovies.Count() / no_of_tasks)+1;
+            int rounds = (user_ratedmovies.Count() / no_of_tasks) + 1;
             List<Task<List<Ratings>>> tasks = new List<Task<List<Ratings>>>();
             for (int i = 0; i < no_of_tasks; i++)
             {
-                tasks.Add(GetDocument(rounds*i, rounds));
-                if(rounds*i> user_ratedmovies.Count()) 
+                tasks.Add(GetDocument(rounds * i, rounds));
+                if (rounds * i > user_ratedmovies.Count())
                 { break; }
             }
             Task.WaitAll(tasks.ToArray());
@@ -144,8 +143,7 @@ namespace SemestralniPrace_MovieLens.DAL
         {
             using (IDocumentSession session = _store.OpenSession())
             {
-                Movie t = session.Load<Movie>(id);
-                return t;
+                return session.Load<Movie>(id);
             }
         }
 
@@ -155,7 +153,7 @@ namespace SemestralniPrace_MovieLens.DAL
             using (IDocumentSession session = _store.OpenSession())
             {
                 IList<Movie> movies = session.Advanced.DocumentQuery<Movie, Movie_TitleSearch>().Search(x => x.Title, selection, @operator: SearchOperator.And).Statistics(out QueryStatistics stats).ToList();
-                int totalResults = stats.TotalResults;
+                // int totalResults = stats.TotalResults;
                 return movies;
             }
         }
@@ -170,8 +168,8 @@ namespace SemestralniPrace_MovieLens.DAL
         }
 
         #region Event_subscription
-        //Tato část pouze ukazuje vyvolání "triggeru" v situaci, kdy dojde k přidání nového/odebrání stávajícího ratingu k filmu (to v semestrální práci samostatně neřešeno, ale případně by to asi byla vhodná funkcionalita)
-        //Map-reduce index vypočítavající AvarageRating se přidání/odebrání ratingu k filmu ihned aktualizuje a novou hodnotu poté uložíme k příslušnému filmu
+        //Tato část pouze ukazuje vyvolání "triggeru" v situaci, kdy dojde k přidání nového/odebrání stávajícího ratingu k filmu (to v semestrální práci samostatně neřešeno, ale případně by to byla vhodná klíčová funkcionalita)
+        //Map-reduce index vypočítavající AvarageRating se přidáním/odebráním ratingu k filmu ihned aktualizuje a novou hodnotu poté díký navázání na událost OnAfterSaveChanges() uložíme k příslušnému filmu
         // => tím by výsledné hodnocení filmu zůstalo vždy aktuální
         //Níže ukázáno na uložení nového ratingu.
         private void StoreRating()
@@ -181,7 +179,7 @@ namespace SemestralniPrace_MovieLens.DAL
             {
                 Ratings r = new Ratings() { Id = "test_rating", MovieId = "Movies/100001", Rating = 5.0, Timestamp = DateTime.Now.ToString(), UserId = "myUser" };
                 session.Store(r);
-                session.SaveChanges();
+                session.SaveChanges(); //vyvolání události
             }
         }
 
@@ -192,15 +190,14 @@ namespace SemestralniPrace_MovieLens.DAL
                 var rating = args.Entity as Ratings;
                 using (IDocumentSession session = _store.OpenSession())
                 {
+                    //získání hodnoty z indexu
                     double average = session.Query<Rating_AverageForMovie.Result, Rating_AverageForMovie>().Where(x => x.MovieId.Equals(rating.MovieId)).FirstOrDefault().Rating_Average;
+                    //aktualizace ratingu u filmu
                     session.Advanced.Patch<Movie, double>(rating.MovieId, x => x.AverageRating, average);
                     session.SaveChanges();
                 }
             }
-
-
         }
-
         #endregion
     }
 }
