@@ -71,11 +71,11 @@ namespace SemestralniPrace_MovieLens.DAL
                               };
                 //selekce pouze tech uzivatelu, kteri hodnotili alespon polovinu filmu co zvoleny uzivatel
                 var results1 = from p in results
-                               where p.CountOfRatings > countofuserratings / 2
+                               where p.CountOfRatings > countofuserratings / 2 
                                select p;
                 //vyber top 10 nejpodobněji hodnotích uživatelů (11=>1 is selected user)
-                var l = results1.OrderBy(item => Math.Abs(finalaverage - item.AverageRating)).Take(10).ToList();
-                l.Add(new SimilarUser { UserId = id, CountOfRatings = countofuserratings, AverageRating = finalaverage }); //vybraný user
+                var l = results1.OrderBy(item => Math.Abs(finalaverage - item.AverageRating)).Take(11).ToList();
+                //l.Add(new SimilarUser { UserId = id, CountOfRatings = countofuserratings, AverageRating = finalaverage }); //vybraný user
                 return l.ToList();
             }
             else
